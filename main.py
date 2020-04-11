@@ -1,16 +1,35 @@
 import os
 os.system('cls')
 
-import speech_recognition as srg 
+import speech_recognition as sr 
 
-rec = srg.Recognizer()
+rec = sr.Recognizer()
 
-with srg.Microphone() as source:
+def recordVoice():
 
-    print('Lets test pyaudio, speak now!')
+    with sr.Microphone() as source:
 
-    paudio = rec.listen(source)
+        vInput = rec.listen(source)
 
-    print('Ok!')
+        try: 
+            vOutput = rec.recognize_google(vInput)
+        except sr.UnknownValueError:
+            print('Sorry Boss, I did not get that')
+        except sr.RequestError:
+            print('Sorry Boss, my speech service seems to be down right now')
+        return vOutput
 
-    print('Test voice to text: \n' + rec.recognize_google(paudio)) 
+def respond(vInput):
+    if 'start training' in vInput:
+        print('Ok Boss, starting Fitness App')
+        fitnessApp()
+
+def fitnessApp():
+    pass
+
+
+
+print('How can I help you Boss')
+recordedVoice = recordVoice()
+
+respond(recordedVoice)
