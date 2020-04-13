@@ -13,16 +13,16 @@ from string import ascii_uppercase
 
 
 rec = sr.Recognizer()
-dateiName = "trainingsDaten.xlsx"
+workbookTitel = "FitnessApp-Daten.xlsx"
 
-def erstnutzungPrüfen(_dateiName):
+def erstnutzungPrüfen(_workbookTitel):
 
-    if os.path.isfile(dateiName):
+    if os.path.isfile(workbookTitel):
         athenaSagt('Willkommen zurück. Wollen wir wieder trainieren?')
     else:
-        neueExcelTabelleErstellen(dateiName)
+        neueExcelTabelleErstellen(workbookTitel)
         athenaSagt('Willkommen zur fitness app. Mein Name ist Athena, und ich werde dein Training begleiten.')
-        athenaSagt('Da du die App anscheinend zum ersten mal startest, muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
+        athenaSagt('Da du die App anscheinend zum ersten mal startest muss ich wissen welche Übungen, und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
         athenaSagt('Schaue dazu, auf dein Gerät, und füge Übungen hinzu.')
 
 
@@ -41,7 +41,7 @@ def nutzerSagt():
         return vOutput
 
 
-def athenaAntwortet(vInput):
+def athenaEntscheidet(vInput):
     if 'starte training' in vInput:
         athenaSagt('Ok, starte die Fitness App')    
     elif 'jo' in vInput:
@@ -51,12 +51,12 @@ def athenaAntwortet(vInput):
         exit()
 
 
-def athenaSagt(audioString):
-    tts = gTTS(text=audioString, lang='de')
+def athenaSagt(string):
+    tts = gTTS(text=string, lang='de')
     r = random.randint(1,10000000)
     audioFile = 'audio-' + str(r) + '.mp3'
     tts.save(audioFile)
-    print(audioString)
+    print(string)
     playsound.playsound(audioFile)
     os.remove(audioFile)
 
@@ -64,7 +64,7 @@ def okAthena():
     pass 
 
 
-def neueExcelTabelleErstellen(_dateiName):
+def neueExcelTabelleErstellen(_workbookTitel):
     #Leeren Workbook erstellen
     wb = openpyxl.Workbook()
 
@@ -85,11 +85,11 @@ def neueExcelTabelleErstellen(_dateiName):
         datenSheet[str(ascii_uppercase[i]) + str(1)] = headerDatenSheet[i]
 
     #Workbook abspeichern
-    wb.save(filename=_dateiName)
+    wb.save(filename=_workbookTitel)
 
-def übungHinzufügen(_dateiName, _übung, _sets, _reps, _beschreibung):
+def übungHinzufügen(_workbookTitel, _übung, _sets, _reps, _beschreibung):
     #excel übungsSheet öffnen
-    wb = load_workbook(filename = _dateiName)
+    wb = load_workbook(filename = _workbookTitel)
     sheet = wb.active
     #checken welches column noch nicht eingetragen wurde
 
@@ -97,22 +97,35 @@ def übungHinzufügen(_dateiName, _übung, _sets, _reps, _beschreibung):
     liste = [_übung, _sets, _reps, _beschreibung]
     sheet.append(liste)
     #excel speichern
-    wb.save(filename= _dateiName)
+    wb.save(filename= _workbookTitel)
 
-def löscheWorkbook(titleOfWorkbook):
-    os.remove(titleOfWorkbook)
+def löscheWorkbook(_workbookTitel):
+    os.remove(_workbookTitel)
 
-def starteTraining():
+def setStarten(row, setNummer):
+    #öffne workbook
+    #öffne sheet 'Uebungen'
+    #Lies bei Set1 die Reps aus und pack sie in neueReps
+    #Athena sagt wie viele Reps du im Set1 machen sollst und wartet auf die tatsächliche Anzahl an Reps die du ihr sagst
+    #Du sagst es ihr und die neuen Reps werden in den 'Trainingsdaten' eingetragen an die Stelle der Trainingssession(Datum)
+    #Athena bestätigt und wiederholt was sie eintragen wird
+    #Excel speichern
     pass
 
 
+def starteTraining():
+    athenaSagt('Beginnen wir mit dem Training: ')
+    setStarten(2,1)
+
+
     
-erstnutzungPrüfen(dateiName)
+erstnutzungPrüfen(workbookTitel)
 okAthena()
+
 
 time.sleep(0.25)
 while 0.25:
     nutzerStimme = nutzerSagt()
-    athenaAntwortet(nutzerStimme)
+    athenaEntscheidet(nutzerStimme)
 
 
