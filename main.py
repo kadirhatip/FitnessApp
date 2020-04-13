@@ -1,19 +1,32 @@
 import os
-import os.path
 os.system('cls')
-
+import os.path
 import speech_recognition as sr 
 import time 
 import random
 import playsound
 from gtts import gTTS
 import openpyxl
+from openpyxl import load_workbook
+from string import ascii_uppercase
 
 
 
 rec = sr.Recognizer()
+dateiName = "trainingsDaten.xlsx"
 
-def recordVoice():
+def erstnutzungPrüfen(_dateiName):
+
+    if os.path.isfile(dateiName):
+        athenaSagt('Willkommen zurück. Wollen wir wieder trainieren?')
+    else:
+        neueExcelTabelleErstellen(dateiName)
+        athenaSagt('Willkommen zur fitness app. Mein Name ist Athena, und ich werde dein Training begleiten.')
+        athenaSagt('Da du die App anscheinend zum ersten mal startest, muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
+        athenaSagt('Schaue dazu, auf dein Gerät, und füge Übungen hinzu.')
+
+
+def nutzerSagt():
 
     with sr.Microphone() as source:
 
@@ -22,24 +35,23 @@ def recordVoice():
         try: 
             vOutput = rec.recognize_google(vInput, language='de_DE')
         except sr.UnknownValueError:
-            athenaSays('Sorry, das habe ich nicht verstanden')
+            athenaSagt('Sorry, das habe ich nicht verstanden')
         except sr.RequestError:
-            athenaSays('Sorry, ich kann momentan auf den sprach service nicht zugreifen.')
+            athenaSagt('Sorry, ich kann momentan auf den sprach service nicht zugreifen.')
         return vOutput
 
 
-#Processing Userinput.
-def respond(vInput):
+def athenaAntwortet(vInput):
     if 'starte training' in vInput:
-        athenaSays('Ok, starte die Fitness App')    
+        athenaSagt('Ok, starte die Fitness App')    
     elif 'jo' in vInput:
-        athenaSays('Ok, starte die Fitness App')
+        athenaSagt('Ok, starte die Fitness App')
     elif 'beenden' in vInput:
-        athenaSays('Alles klar. Bis zum nächsten mal.')
+        athenaSagt('Alles klar. Bis zum nächsten mal.')
         exit()
 
-#Playing audio through text-to-speech
-def athenaSays(audioString):
+
+def athenaSagt(audioString):
     tts = gTTS(text=audioString, lang='de')
     r = random.randint(1,10000000)
     audioFile = 'audio-' + str(r) + '.mp3'
@@ -48,31 +60,59 @@ def athenaSays(audioString):
     playsound.playsound(audioFile)
     os.remove(audioFile)
 
-def addingExercise():
-    pass
+def okAthena():
+    pass 
 
-def deletingWorkbook(titleOfWorkbook):
+
+def neueExcelTabelleErstellen(_dateiName):
+    #Leeren Workbook erstellen
+    wb = openpyxl.Workbook()
+
+    #Sheet für Übungen und Fortschritt erstellen
+    übungsSheet = wb.active
+    übungsSheet.title = 'Uebungen'
+    datenSheet = wb.create_sheet('Trainingsdaten')
+
+    #Beim erstmaligen Erstellen des Excels noch nur ges. Wiederholungen. Beim Verarbeiten durch Athena müssen dann noch die einzelnen Wiederholungen der Sätze dazukommen.
+    headerÜbungsSheet = ['Uebung', 'Saetze', 'Wiederholungen', 'Beschreibung']
+    headerDatenSheet = ['Datum', 'Uebung', 'Saetze', 'Gesamte Wiederholungen']    
+
+    # Überschriften in die oberste Zeile der Exceltabelle eintragen
+    for i in range(0, len(headerÜbungsSheet)):
+        übungsSheet[str(ascii_uppercase[i]) + str(1)] = headerÜbungsSheet[i]
+    
+    for i in range(0, len(headerDatenSheet)):
+        datenSheet[str(ascii_uppercase[i]) + str(1)] = headerDatenSheet[i]
+
+    #Workbook abspeichern
+    wb.save(filename=_dateiName)
+
+def übungHinzufügen(_dateiName, _übung, _sets, _reps, _beschreibung):
+    #excel übungsSheet öffnen
+    wb = load_workbook(filename = _dateiName)
+    sheet = wb.active
+    #checken welches column noch nicht eingetragen wurde
+
+    #auf das nächste freie column die attribute eintragen
+    liste = [_übung, _sets, _reps, _beschreibung]
+    sheet.append(liste)
+    #excel speichern
+    wb.save(filename= _dateiName)
+
+def löscheWorkbook(titleOfWorkbook):
     os.remove(titleOfWorkbook)
 
-def fitnessApp():
+def starteTraining():
     pass
 
 
-
-
-if os.path.isfile('trainingsDaten.xlsx'):
-    athenaSays('Willkommen zurück. Wollen wir wieder trainieren?')
-else:
-    wb = openpyxl.Workbook()
-    wb.save('trainingsDaten.xlsx')
-    athenaSays('Willkommen zur fitness app. Mein Name ist Athena, und ich werde dein Training begleiten.')
-    athenaSays('Da du die App anscheinend zum ersten mal startest, muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
-    athenaSays('Schaue dazu, auf dein Gerät')
-    addingExercise()
+    
+erstnutzungPrüfen(dateiName)
+okAthena()
 
 time.sleep(0.25)
 while 0.25:
-    recordedVoice = recordVoice()
-    respond(recordedVoice)
+    nutzerStimme = nutzerSagt()
+    athenaAntwortet(nutzerStimme)
 
 
