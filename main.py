@@ -20,27 +20,27 @@ def recordVoice():
         vInput = rec.listen(source)
 
         try: 
-            vOutput = rec.recognize_google(vInput)
+            vOutput = rec.recognize_google(vInput, language='de_DE')
         except sr.UnknownValueError:
-            athenaSays('Sorry Boss, I did not get that')
+            athenaSays('Sorry, das habe ich nicht verstanden')
         except sr.RequestError:
-            athenaSays('Sorry Boss, my speech service seems to be down right now')
+            athenaSays('Sorry, ich kann momentan auf den sprach service nicht zugreifen.')
         return vOutput
 
 
 #Processing Userinput.
 def respond(vInput):
-    if 'start training' in vInput:
-        athenaSays('Ok Boss, starting Fitness App')    
-    elif 'yeah' in vInput:
-        athenaSays('Ok Boss, starting Fitness App')
-    elif 'exit' in vInput:
-        athenaSays('Ok Boss, see you later')
+    if 'starte training' in vInput:
+        athenaSays('Ok, starte die Fitness App')    
+    elif 'jo' in vInput:
+        athenaSays('Ok, starte die Fitness App')
+    elif 'beenden' in vInput:
+        athenaSays('Alles klar. Bis zum nächsten mal.')
         exit()
 
 #Playing audio through text-to-speech
 def athenaSays(audioString):
-    tts = gTTS(text=audioString, lang='en')
+    tts = gTTS(text=audioString, lang='de')
     r = random.randint(1,10000000)
     audioFile = 'audio-' + str(r) + '.mp3'
     tts.save(audioFile)
@@ -51,6 +51,9 @@ def athenaSays(audioString):
 def addingExercise():
     pass
 
+def deletingWorkbook(titleOfWorkbook):
+    os.remove(titleOfWorkbook)
+
 def fitnessApp():
     pass
 
@@ -58,12 +61,13 @@ def fitnessApp():
 
 
 if os.path.isfile('trainingsDaten.xlsx'):
-    athenaSays('Welcome back boss. Shall we start training again?')
+    athenaSays('Willkommen zurück. Wollen wir wieder trainieren?')
 else:
     wb = openpyxl.Workbook()
     wb.save('trainingsDaten.xlsx')
-    athenaSays('Welcome to the fitness app. My name is athena, and I will be guiding you through your training.')
-    athenaSays('Since this is your first time starting the app, I need to know what kind of exercise you want to do.')
+    athenaSays('Willkommen zur fitness app. Mein Name ist Athena, und ich werde dein Training begleiten.')
+    athenaSays('Da du die App anscheinend zum ersten mal startest, muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
+    athenaSays('Schaue dazu, auf dein Gerät')
     addingExercise()
 
 time.sleep(0.25)
