@@ -22,8 +22,8 @@ def erstnutzungPrüfen(_workbookTitel):
     else:
         neueExcelTabelleErstellen(workbookTitel)
         athenaSagt('Willkommen zur fitness app. Mein Name ist Athena, und ich werde dein Training begleiten.')
-        athenaSagt('Da du die App anscheinend zum ersten mal startest muss ich wissen welche Übungen, und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
-        athenaSagt('Schaue dazu, auf dein Gerät, und füge Übungen hinzu.')
+        athenaSagt('Da du die App anscheinend zum ersten mal startest muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
+        athenaSagt('Schaue dazu auf dein Gerät und füge Übungen hinzu.')
 
 
 def nutzerSagt():
