@@ -14,6 +14,8 @@ from string import ascii_uppercase
 
 rec = sr.Recognizer()
 workbookTitel = "FitnessApp-Daten.xlsx"
+sheetStatistiken = "Trainingsstatistiken"
+sheetÜbungen = "Uebungen"
 
 def erstnutzungPrüfen(_workbookTitel):
 
@@ -24,8 +26,6 @@ def erstnutzungPrüfen(_workbookTitel):
         athenaSagt('Willkommen zur fitness app. Mein Name ist Athena, und ich werde dein Training begleiten.')
         athenaSagt('Da du die App anscheinend zum ersten mal startest muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
         athenaSagt('Schaue dazu auf dein Gerät und füge Übungen hinzu.')
-
-
 def nutzerSagt():
 
     with sr.Microphone() as source:
@@ -39,8 +39,6 @@ def nutzerSagt():
         except sr.RequestError:
             athenaSagt('Sorry, ich kann momentan auf den sprach service nicht zugreifen.')
         return vOutput
-
-
 def athenaEntscheidet(vInput):
     if 'starte training' in vInput:
         athenaSagt('Ok, starte die Fitness App')    
@@ -49,8 +47,6 @@ def athenaEntscheidet(vInput):
     elif 'beenden' in vInput:
         athenaSagt('Alles klar. Bis zum nächsten mal.')
         exit()
-
-
 def athenaSagt(string):
     tts = gTTS(text=string, lang='de')
     r = random.randint(1,10000000)
@@ -59,10 +55,8 @@ def athenaSagt(string):
     print(string)
     playsound.playsound(audioFile)
     os.remove(audioFile)
-
 def okAthena():
     pass 
-
 
 def neueExcelTabelleErstellen(_workbookTitel):
     #Leeren Workbook erstellen
@@ -70,12 +64,12 @@ def neueExcelTabelleErstellen(_workbookTitel):
 
     #Sheet für Übungen und Fortschritt erstellen
     übungsSheet = wb.active
-    übungsSheet.title = 'Uebungen'
-    datenSheet = wb.create_sheet('Trainingsdaten')
+    übungsSheet.title = sheetÜbungen
+    datenSheet = wb.create_sheet(sheetStatistiken)
 
     #Beim erstmaligen Erstellen des Excels noch nur ges. Wiederholungen. Beim Verarbeiten durch Athena müssen dann noch die einzelnen Wiederholungen der Sätze dazukommen.
     headerÜbungsSheet = ['Uebung', 'Saetze', 'Wiederholungen', 'Beschreibung']
-    headerDatenSheet = ['Datum', 'Uebung', 'Saetze', 'Gesamte Wiederholungen']    
+    headerDatenSheet = ['Datum']    
 
     # Überschriften in die oberste Zeile der Exceltabelle eintragen
     for i in range(0, len(headerÜbungsSheet)):
@@ -86,25 +80,31 @@ def neueExcelTabelleErstellen(_workbookTitel):
 
     #Workbook abspeichern
     wb.save(filename=_workbookTitel)
-
 def übungHinzufügen(_workbookTitel, _übung, _sets, _reps, _beschreibung):
     #excel übungsSheet öffnen
     wb = load_workbook(filename = _workbookTitel)
-    sheet = wb.active
+    sheetÜbungen = wb['Uebungen']
+    sheetDaten = wb['Trainingsstatistiken']
     #checken welches column noch nicht eingetragen wurde
 
     #auf das nächste freie column die attribute eintragen
     liste = [_übung, _sets, _reps, _beschreibung]
-    sheet.append(liste)
+    sheetÜbungen.append(liste)
+    #Füge jedes angegebene Set einzeln in 'Trainingsdaten hinzu
+    listeDaten = [_übung]
+    sheetDaten['B1'] = _übung
+
+        
     #excel speichern
     wb.save(filename= _workbookTitel)
-
 def löscheWorkbook(_workbookTitel):
     os.remove(_workbookTitel)
-
-def setStarten(row, setNummer):
+def setStarten(_workbookTitel, _row, _setNummer):
     #öffne workbook
-    #öffne sheet 'Uebungen'
+    wb = load_workbook(filename= _workbookTitel)
+    #öffne sheet 'sheetÜbungen' und 'Trainingsdaten'
+    sheetÜbungen = wb['sheetÜbungen']
+    sheetDaten = wb['sheetStatistiken']
     #Lies bei Set1 die Reps aus und pack sie in neueReps
     #Athena sagt wie viele Reps du im Set1 machen sollst und wartet auf die tatsächliche Anzahl an Reps die du ihr sagst
     #Du sagst es ihr und die neuen Reps werden in den 'Trainingsdaten' eingetragen an die Stelle der Trainingssession(Datum)
@@ -113,19 +113,22 @@ def setStarten(row, setNummer):
     pass
 
 
-def starteTraining():
+def starteTraining(_workbookTitel):
     athenaSagt('Beginnen wir mit dem Training: ')
-    setStarten(2,1)
+    #setStarten(_workbookTitel, 2, 1)
 
 
     
 erstnutzungPrüfen(workbookTitel)
-okAthena()
+übungHinzufügen(workbookTitel, 'Pushups', 3, 8, '')
+übungHinzufügen(workbookTitel, 'Pullups', 3, 8, '')
 
 
-time.sleep(0.25)
-while 0.25:
-    nutzerStimme = nutzerSagt()
-    athenaEntscheidet(nutzerStimme)
+
+
+#time.sleep(0.25)
+#while 0.25:
+#    nutzerStimme = nutzerSagt()
+#    athenaEntscheidet(nutzerStimme)
 
 
