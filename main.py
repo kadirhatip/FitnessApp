@@ -42,7 +42,8 @@ def nutzerSagt():
         return vOutput
 def athenaEntscheidet(vInput):
     if 'starte training' in vInput:
-        athenaSagt('Ok, starte die Fitness App')    
+        athenaSagt('Ok, starte die Fitness App')
+        starteTraining()    
     elif 'jo' in vInput:
         athenaSagt('Ok, starte die Fitness App')
     elif 'beenden' in vInput:
@@ -83,7 +84,6 @@ def neueExcelTabelleErstellen():
     #Workbook abspeichern
     wb.save(filename=workbookTitel)
 def übungHinzufügen():
-    #TODO Hier noch einmal gucken ob workbookTitel eine globale Variable ist. Wenn das so ist wird sie aus vielen Parametern in Funktionen rausfliegen 
     #excel übungsSheet öffnen
     wb = load_workbook(filename = workbookTitel)
     sheetÜbungen = wb['Uebungen']
@@ -111,12 +111,13 @@ def übungHinzufügen():
     wb.save(filename= workbookTitel)
 def löscheWorkbook():
     os.remove(workbookTitel)
-def setStarten(_row, _setNummer):
+def setStarten(_übung, _sets, _reps):
     #öffne workbook
     wb = load_workbook(filename= workbookTitel)
     #öffne sheet 'sheetÜbungen' und 'Trainingsdaten'
-    sheetÜbungen = wb['sheetÜbungen']
-    sheetDaten = wb['sheetStatistiken']
+    #TODO kann die sheetÜbungen nicht öffnen da sie schon offen sind
+    #sheetÜbungen = wb[sheetÜbungen]
+    #sheetDaten = wb[sheetStatistiken]
     #Lies bei Set1 die Reps aus und pack sie in neueReps
     #Athena sagt wie viele Reps du im Set1 machen sollst und wartet auf die tatsächliche Anzahl an Reps die du ihr sagst
     #Du sagst es ihr und die neuen Reps werden in den 'Trainingsdaten' eingetragen an die Stelle der Trainingssession(Datum)
@@ -124,10 +125,21 @@ def setStarten(_row, _setNummer):
     #Excel speichern
     pass
 
-
 def starteTraining():
-    athenaSagt('Beginnen wir mit dem Training: ')
-    #setStarten(_workbookTitel, 2, 1)
+    athenaSagt('Beginnen wir mit dem Training')
+    #Workbook und Sheets laden
+    wb = load_workbook(filename=workbookTitel)
+    sheetÜbungen = wb['Uebungen']
+    sheetDaten = wb['Trainingsstatistiken']
+    #Die Gesamtanzahl an Übungen ablesen und als Variable speichern
+    gesamtanzahlÜbungen = sheetÜbungen.max_row-1
+    #An die erste Übung gehen, die Anzahl der Sets und Reps abspeichern und setStarten mit den Vars starten
+    for zeile in range(1,gesamtanzahlÜbungen):
+        übung = sheetÜbungen.cell(row=zeile, column=1).value
+        sets = sheetÜbungen.cell(row=zeile, column=2).value
+        reps = sheetÜbungen.cell(row=zeile, column=3).value
+        setStarten(übung, sets, reps)
+       #fortschrittEintragen()
 
 
     
