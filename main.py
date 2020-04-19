@@ -17,15 +17,16 @@ workbookTitel = "FitnessApp-Daten.xlsx"
 sheetStatistiken = "Trainingsstatistiken"
 sheetÜbungen = "Uebungen"
 
-def erstnutzungPrüfen(_workbookTitel):
+def erstnutzungPrüfen():
+
 
     if os.path.isfile(workbookTitel):
         athenaSagt('Willkommen zurück. Wollen wir wieder trainieren?')
     else:
-        neueExcelTabelleErstellen(workbookTitel)
+        neueExcelTabelleErstellen()
         athenaSagt('Willkommen zur fitness app. Mein Name ist Athena, und ich werde dein Training begleiten.')
-        athenaSagt('Da du die App anscheinend zum ersten mal startest muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
-        athenaSagt('Schaue dazu auf dein Gerät und füge Übungen hinzu.')
+        # athenaSagt('Da du die App anscheinend zum ersten mal startest muss ich wissen welche Übungen und wie viele Sätze du mit wie vielen Wiederholungen machen willst')
+        # athenaSagt('Schaue dazu auf dein Gerät und füge Übungen hinzu.')
 def nutzerSagt():
 
     with sr.Microphone() as source:
@@ -47,18 +48,18 @@ def athenaEntscheidet(vInput):
     elif 'beenden' in vInput:
         athenaSagt('Alles klar. Bis zum nächsten mal.')
         exit()
-def athenaSagt(string):
-    tts = gTTS(text=string, lang='de')
+    elif 'Übung hinzufügen' in vInput:
+        übungHinzufügen()
+
+def athenaSagt(_string):
+    tts = gTTS(text=_string, lang='de')
     r = random.randint(1,10000000)
     audioFile = 'audio-' + str(r) + '.mp3'
     tts.save(audioFile)
-    print(string)
+    print(_string)
     playsound.playsound(audioFile)
     os.remove(audioFile)
-def okAthena():
-    pass 
-
-def neueExcelTabelleErstellen(_workbookTitel):
+def neueExcelTabelleErstellen():
     #Leeren Workbook erstellen
     wb = openpyxl.Workbook()
 
@@ -68,40 +69,51 @@ def neueExcelTabelleErstellen(_workbookTitel):
     datenSheet = wb.create_sheet(sheetStatistiken)
 
     #Beim erstmaligen Erstellen des Excels noch nur ges. Wiederholungen. Beim Verarbeiten durch Athena müssen dann noch die einzelnen Wiederholungen der Sätze dazukommen.
-    headerÜbungsSheet = ['Uebung', 'Saetze', 'Wiederholungen', 'Beschreibung']
+    headerÜbungsSheet = ['Uebung', 'Saetze', 'Wiederholungen']
     headerDatenSheet = ['Datum']    
 
     # Überschriften in die oberste Zeile der Exceltabelle eintragen
-    for i in range(0, len(headerÜbungsSheet)):
-        übungsSheet[str(ascii_uppercase[i]) + str(1)] = headerÜbungsSheet[i]
+    for i in range(1, len(headerÜbungsSheet)+1):
+         übungsSheet.cell(row =1, column=i).value = headerÜbungsSheet[i-1]
     
-    for i in range(0, len(headerDatenSheet)):
-        datenSheet[str(ascii_uppercase[i]) + str(1)] = headerDatenSheet[i]
+    for i in range(1, len(headerDatenSheet)+1):
+        datenSheet.cell(row =1, column=i).value = headerDatenSheet[i-1]
+
 
     #Workbook abspeichern
-    wb.save(filename=_workbookTitel)
-def übungHinzufügen(_workbookTitel, _übung, _sets, _reps, _beschreibung):
+    wb.save(filename=workbookTitel)
+def übungHinzufügen():
+    #TODO Hier noch einmal gucken ob workbookTitel eine globale Variable ist. Wenn das so ist wird sie aus vielen Parametern in Funktionen rausfliegen 
     #excel übungsSheet öffnen
-    wb = load_workbook(filename = _workbookTitel)
+    wb = load_workbook(filename = workbookTitel)
     sheetÜbungen = wb['Uebungen']
     sheetDaten = wb['Trainingsstatistiken']
-    #checken welches column noch nicht eingetragen wurde
 
-    #auf das nächste freie column die attribute eintragen
-    liste = [_übung, _sets, _reps, _beschreibung]
+    #Athena fragt die zu hinzufügenden Übungen ab
+    athenaSagt("Sehr, gern. Wie ist der Name der Übung?")
+    _übung = nutzerSagt()
+    athenaSagt("Verstanden. Wie viele Sätze %s möchtest du machen?" % _übung)
+    _sets = nutzerSagt()
+    athenaSagt("Ok. Wie viele Wiederholungen willst du pro Satz machen?")
+    _reps = nutzerSagt()
+    athenaSagt("Alles klar. Ich werde nun die Übung in deine Excel-Datei hinzufügen. Sollte etwas nicht stimmen schaue bitte dort nach.")
+
+
+    liste = [_übung, _sets, _reps]
     sheetÜbungen.append(liste)
-    #Füge jedes angegebene Set einzeln in 'Trainingsdaten hinzu
-    listeDaten = [_übung]
-    sheetDaten['B1'] = _übung
+    #auf das nächste freie column die attribute eintragen
+    maxSpalte = sheetDaten.max_column
+    sheetDaten.cell(row =1, column=maxSpalte + 1).value = _übung
+    
 
         
     #excel speichern
-    wb.save(filename= _workbookTitel)
-def löscheWorkbook(_workbookTitel):
-    os.remove(_workbookTitel)
-def setStarten(_workbookTitel, _row, _setNummer):
+    wb.save(filename= workbookTitel)
+def löscheWorkbook():
+    os.remove(workbookTitel)
+def setStarten(_row, _setNummer):
     #öffne workbook
-    wb = load_workbook(filename= _workbookTitel)
+    wb = load_workbook(filename= workbookTitel)
     #öffne sheet 'sheetÜbungen' und 'Trainingsdaten'
     sheetÜbungen = wb['sheetÜbungen']
     sheetDaten = wb['sheetStatistiken']
@@ -113,22 +125,18 @@ def setStarten(_workbookTitel, _row, _setNummer):
     pass
 
 
-def starteTraining(_workbookTitel):
+def starteTraining():
     athenaSagt('Beginnen wir mit dem Training: ')
     #setStarten(_workbookTitel, 2, 1)
 
 
     
-erstnutzungPrüfen(workbookTitel)
-übungHinzufügen(workbookTitel, 'Pushups', 3, 8, '')
-übungHinzufügen(workbookTitel, 'Pullups', 3, 8, '')
+erstnutzungPrüfen()
 
 
-
-
-#time.sleep(0.25)
-#while 0.25:
-#    nutzerStimme = nutzerSagt()
-#    athenaEntscheidet(nutzerStimme)
+time.sleep(0.25)
+while 0.25:
+    nutzerStimme = nutzerSagt()
+    athenaEntscheidet(nutzerStimme)
 
 
