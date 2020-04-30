@@ -1,5 +1,4 @@
 import os
-os.system('cls')
 import os.path
 import speech_recognition as sr 
 import time 
@@ -8,8 +7,9 @@ import playsound
 from gtts import gTTS
 import openpyxl
 from openpyxl import load_workbook
-from string import ascii_uppercase
+#from string import ascii_uppercase
 
+os.system('cls')
 
 
 rec = sr.Recognizer()
@@ -115,7 +115,6 @@ def setStarten(_übung, _sets, _reps):
     #öffne workbook
     #wb = load_workbook(filename= workbookTitel)
     #öffne sheet 'sheetÜbungen' und 'Trainingsdaten'
-    #TODO kann die sheetÜbungen nicht öffnen da sie schon offen sind
     #sheetÜbungen = wb['Uebungen']
     #sheetDaten = wb['Trainingsstatistiken']
     #Athena sagt wie viele Reps du im Set1 machen sollst und wartet auf die tatsächliche Anzahl an Reps die du ihr sagst
@@ -124,12 +123,11 @@ def setStarten(_übung, _sets, _reps):
         athenaSagt("Nachdem du mit der Übung fertig bist, sage bitte wie viele Wiederholungen du geschafft hast. Wecke mich dazu wieder mit: Ok, Athena")
         time.sleep(1)
         nutzerStimme = ''
-        while not(nutzerStimme == 'Ok Athena'):
+        
+        time.sleep(1)
+        while 1:
             nutzerStimme = nutzerSagt()
-
-        athenaSagt("Was sind die Wiederholungen?")
-        reps = nutzerSagt()
-        fortschrittEintragen(reps)
+            
 
         
 
@@ -149,7 +147,7 @@ def starteTraining():
     sheetÜbungen = wb['Uebungen']
     #sheetDaten = wb['Trainingsstatistiken']
     #Die Gesamtanzahl an Übungen ablesen und als Variable speichern
-    gesamtanzahlÜbungen = sheetÜbungen.max_row-1
+    gesamtanzahlÜbungen = sheetÜbungen.max_row
     #An die erste Übung gehen, die Anzahl der Sets und Reps abspeichern und setStarten mit den Vars starten
     for stelle in range(2,gesamtanzahlÜbungen):
         übung = sheetÜbungen.cell(row=stelle, column=1).value
